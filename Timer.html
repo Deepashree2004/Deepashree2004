@@ -1,0 +1,274 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Advanced Responsive Flip Clock Timer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+
+    body {
+      font-family: 'Anton', sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #f26a5e 0%, #f9a16e 40%, #6a6ee3 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      color: white;
+    }
+    main {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .flip-card {
+      perspective: 1000px;
+      border-radius: 10px;
+      background: rgba(255 255 255 / 0.15);
+      backdrop-filter: blur(20%);
+      box-shadow:
+        0 10px 40px rgb(106 110 227 / 0.5),
+        inset 0 0 0 1.5px rgb(255 255 255 / 0.2);
+      width: 180px; /* increased width */
+      height: 220px; /* increased height */
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      transition: transform 0.3s ease;
+      padding: 2.5rem;
+      box-sizing: border-box;
+    }
+    .flip-card:hover {
+      transform: scale(1.05);
+      box-shadow:
+        0 14px 56px rgb(106 110 227 / 0.7),
+        inset 0 0 0 2px rgb(255 255 255 / 0.3);
+    }
+
+    .flip-card-inner {
+      font-family: 'Anton', sans-serif;
+      font-weight: 700;
+      font-size: 7.5rem; /* increased font size */
+      letter-spacing: 0.1em;
+      line-height: 1;
+      color: white;
+      text-shadow:
+        0 2px 6px rgb(0 0 0 / 0.5),
+        0 0 8px rgb(255 255 255 / 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      background: transparent;
+      border-radius: 12px;
+    }
+    .flip-card-inner::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: rgba(255 255 255 / 0.3);
+      transform: translateY(-50%);
+      pointer-events: none;
+      filter: drop-shadow(0 0 1px rgba(255 255 255 / 0.5));
+      border-radius: 2px;
+    }
+
+    .flip-container {
+      display: flex;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .controls {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    button {
+      background: rgba(255 255 255 / 0.25);
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1.125rem;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+      user-select: none;
+      flex: 1 1 120px;
+      text-align: center;
+    }
+    button:hover {
+      background: rgba(255 255 255 / 0.45);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgb(0 0 0 / 0.25);
+    }
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+    }
+
+    @media (max-width: 768px) {
+      .flip-card {
+        width: 120px;
+        height: 170px;
+        padding: 1.5rem;
+      }
+      .flip-card-inner {
+        font-size: 5.5rem;
+      }
+      button {
+        font-size: 1rem;
+        padding: 0.75rem 1.5rem;
+      }
+    }
+    @media (max-width: 400px) {
+      .flip-card {
+        width: 90px;
+        height: 120px;
+        padding: 1rem;
+      }
+      .flip-card-inner {
+        font-size: 4rem;
+      }
+      button {
+        font-size: 0.9rem;
+        padding: 0.6rem 1.2rem;
+        flex: 1 1 100%;
+      }
+      .flip-container {
+        gap: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main role="main" aria-label="Flip clock timer app" class="w-full max-w-5xl mx-auto flex flex-col items-center justify-center">
+    <section class="flip-container" aria-live="polite" aria-atomic="true" aria-relevant="text">
+      <div class="flip-card" role="timer" aria-label="Hours">
+        <div id="flip-hour" class="flip-card-inner" aria-live="off" aria-atomic="true" style="" ne="0.45504566424937143">00</div>
+      </div>
+      <div class="flip-card" role="timer" aria-label="Minutes">
+        <div id="flip-minute" class="flip-card-inner" aria-live="off" aria-atomic="true">00</div>
+      </div>
+      <div class="flip-card" role="timer" aria-label="Seconds">
+        <div id="flip-second" class="flip-card-inner" aria-live="off" aria-atomic="true">00</div>
+      </div>
+    </section>
+
+    <section class="controls" role="region" aria-label="Timer controls">
+      <button id="startBtn" aria-pressed="false" aria-controls="flip-hour flip-minute flip-second" type="button">
+        <i class="fas fa-play mr-2" aria-hidden="true"></i>Start
+      </button>
+      <button id="stopBtn" aria-pressed="false" aria-controls="flip-hour flip-minute flip-second" type="button" disabled>
+        <i class="fas fa-pause mr-2" aria-hidden="true"></i>Stop
+      </button>
+      <button id="resetBtn" aria-controls="flip-hour flip-minute flip-second" type="button">
+        <i class="fas fa-redo-alt mr-2" aria-hidden="true"></i>Reset
+      </button>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const hourEl = document.getElementById('flip-hour');
+      const minuteEl = document.getElementById('flip-minute');
+      const secondEl = document.getElementById('flip-second');
+      const startBtn = document.getElementById('startBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      const resetBtn = document.getElementById('resetBtn');
+
+      let interval = null;
+      let hour = 0;
+      let minute = 0;
+      let second = 0;
+
+      function pad(num) {
+        return num.toString().padStart(2, '0');
+      }
+
+      function updateDisplay() {
+        hourEl.textContent = pad(hour);
+        minuteEl.textContent = pad(minute);
+        secondEl.textContent = pad(second);
+      }
+
+      function tick() {
+        second++;
+        if (second >= 60) {
+          second = 0;
+          minute++;
+          if (minute >= 60) {
+            minute = 0;
+            hour++;
+            if (hour >= 100) {
+              hour = 0;
+            }
+          }
+        }
+        updateDisplay();
+      }
+
+      function setButtonState(started) {
+        startBtn.disabled = started;
+        stopBtn.disabled = !started;
+        startBtn.setAttribute('aria-pressed', started ? 'true' : 'false');
+        stopBtn.setAttribute('aria-pressed', started ? 'true' : 'false');
+      }
+
+      startBtn.addEventListener('click', () => {
+        if (!interval) {
+          interval = setInterval(tick, 1000);
+          setButtonState(true);
+        }
+      });
+
+      stopBtn.addEventListener('click', () => {
+        if (interval) {
+          clearInterval(interval);
+          interval = null;
+          setButtonState(false);
+        }
+      });
+
+      resetBtn.addEventListener('click', () => {
+        hour = 0;
+        minute = 0;
+        second = 0;
+        updateDisplay();
+        if (interval) {
+          clearInterval(interval);
+          interval = null;
+        }
+        setButtonState(false);
+      });
+
+      updateDisplay();
+      setButtonState(false);
+    })();
+  </script>
+</body>
+</html>
