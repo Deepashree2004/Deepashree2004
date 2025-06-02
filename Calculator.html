@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Advanced Responsive Calculator</title>
+<style>
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #fff;
+    user-select: none;
+  }
+
+  .calculator {
+    background: #1e1e2f;
+    border-radius: 25px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(115, 68, 211, 0.7);
+    width: 360px;
+    max-width: 95vw;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Display screen */
+  .display {
+    background: #2c2c3e;
+    height: 80px;
+    border-radius: 15px;
+    padding: 15px 20px;
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: right;
+    letter-spacing: 1px;
+    overflow-x: auto;
+    white-space: nowrap;
+    box-shadow: inset 0 3px 10px rgba(0,0,0,0.6);
+    margin-bottom: 25px;
+    color: #bfc0c0;
+  }
+
+  /* Buttons grid */
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 15px;
+  }
+
+  /* Button styles */
+  button {
+    border: none;
+    border-radius: 12px;
+    padding: 20px 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+    background: #4c3c94;
+    box-shadow: 0 5px #3a2f7f;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline-offset: 2px;
+  }
+  button:active {
+    box-shadow: 0 2px #3a2f7f;
+    transform: translateY(3px);
+  }
+  button:focus-visible {
+    outline: 2px solid #9b76f3;
+  }
+
+  /* Operator buttons */
+  .operator {
+    background: #7b59d9;
+    box-shadow: 0 5px #5e41a9;
+  }
+  .operator:active {
+    box-shadow: 0 2px #5e41a9;
+    transform: translateY(3px);
+  }
+
+  /* Special buttons: Clear & Equals */
+  .clear {
+    background: #d9534f;
+    box-shadow: 0 5px #a73734;
+  }
+  .clear:active {
+    box-shadow: 0 2px #a73734;
+    transform: translateY(3px);
+  }
+  .equals {
+    background: #28a745;
+    box-shadow: 0 5px #1e6a2c;
+  }
+  .equals:active {
+    box-shadow: 0 2px #1e6a2c;
+    transform: translateY(3px);
+  }
+
+  /* Zero button is double width */
+  .zero {
+    grid-column: span 2;
+  }
+
+  /* Hover effects */
+  button:hover:not(:active) {
+    filter: brightness(1.15);
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 400px) {
+    .calculator {
+      width: 100%;
+      padding: 15px;
+    }
+    .display {
+      font-size: 1.6rem;
+      height: 60px;
+      padding: 12px 15px;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 16px 0;
+      font-size: 1.1rem;
+      border-radius: 10px;
+    }
+  }
+
+</style>
+</head>
+<body>
+  <div class="calculator" role="application" aria-label="Calculator">
+    <div class="display" id="display" aria-live="polite" aria-atomic="true">0</div>
+    <div class="buttons">
+      <button class="clear" id="clear" aria-label="Clear">C</button>
+      <button class="operator" id="backspace" aria-label="Backspace">⌫</button>
+      <button class="operator" data-action="/" aria-label="Divide">÷</button>
+      <button class="operator" data-action="*" aria-label="Multiply">×</button>
+
+      <button data-number="7" aria-label="Seven">7</button>
+      <button data-number="8" aria-label="Eight">8</button>
+      <button data-number="9" aria-label="Nine">9</button>
+      <button class="operator" data-action="-" aria-label="Minus">−</button>
+
+      <button data-number="4" aria-label="Four">4</button>
+      <button data-number="5" aria-label="Five">5</button>
+      <button data-number="6" aria-label="Six">6</button>
+      <button class="operator" data-action="+" aria-label="Plus">+</button>
+
+      <button data-number="1" aria-label="One">1</button>
+      <button data-number="2" aria-label="Two">2</button>
+      <button data-number="3" aria-label="Three">3</button>
+      <button class="equals" id="equals" aria-label="Equals">=</button>
+
+      <button class="zero" data-number="0" aria-label="Zero">0</button>
+      <button data-number="." aria-label="Decimal point">.</button>
+    </div>
+  </div>
+
+<script>
+  (function() {
+    const display = document.getElementById('display');
+    const buttons = document.querySelectorAll('button');
+    let currentInput = '0';
+    let previousInput = null;
+    let operator = null;
+    let resultDisplayed = false;
+
+    function updateDisplay() {
+      display.textContent = currentInput;
+    }
+
+    function clear() {
+      currentInput = '0';
+      previousInput = null;
+      operator = null;
+      resultDisplayed = false;
+      updateDisplay();
+    }
+
+    function backspace() {
+      if (resultDisplayed) {
+        clear();
+        return;
+      }
+      if (currentInput.length > 1) {
+        currentInput = currentInput.slice(0, -1);
+      } else {
+        currentInput = '0';
+      }
+      updateDisplay();
+    }
+
+    function appendNumber(number) {
+      if (resultDisplayed) {
+        currentInput = number === '.' ? '0.' : number;
+        resultDisplayed = false;
+        updateDisplay();
+        return;
+      }
+      if (number === '.') {
+        if (!currentInput.includes('.')) {
+          currentInput += '.';
+        }
+      } else {
+        if (currentInput === '0') {
+          currentInput = number;
+        } else {
+          currentInput += number;
+        }
+      }
+      updateDisplay();
+    }
+
+    function compute() {
+      if (operator === null || previousInput === null) return;
+      let computation;
+      try {
+        const prev = parseFloat(previousInput);
+        const curr = parseFloat(currentInput);
+        if (isNaN(prev) || isNaN(curr)) return;
+        switch(operator) {
+          case '+':
+            computation = prev + curr;
+            break;
+          case '-':
+            computation = prev - curr;
+            break;
+          case '*':
+            computation = prev * curr;
+            break;
+          case '/':
+            if (curr === 0) {
+              alert("Error: Division by zero");
+              clear();
+              return;
+            }
+            computation = prev / curr;
+            break;
+          default:
+            return;
+        }
+        currentInput = computation.toString();
+        operator = null;
+        previousInput = null;
+        resultDisplayed = true;
+        updateDisplay();
+      } catch(e) {
+        alert("Error in calculation");
+        clear();
+      }
+    }
+
+    function handleOperator(op) {
+      if (operator !== null && !resultDisplayed) {
+        compute();
+      }
+      previousInput = currentInput;
+      operator = op;
+      currentInput = '0';
+      resultDisplayed = false;
+      updateDisplay();
+    }
+
+    // Keyboard support
+    function keyboardInput(e) {
+      const key = e.key;
+      if ((key >= '0' && key <= '9') || key === '.') {
+        e.preventDefault();
+        appendNumber(key);
+      } else if (key === '+' || key === '-' || key === '*' || key === '/') {
+        e.preventDefault();
+        handleOperator(key);
+      } else if (key === 'Enter' || key === '=') {
+        e.preventDefault();
+        compute();
+      } else if (key === 'Backspace') {
+        e.preventDefault();
+        backspace();
+      } else if (key === 'Escape') {
+        e.preventDefault();
+        clear();
+      }
+    }
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        if (button.hasAttribute('data-number')) {
+          appendNumber(button.getAttribute('data-number'));
+        } else if (button.hasAttribute('data-action')) {
+          handleOperator(button.getAttribute('data-action'));
+        } else if (button.id === 'clear') {
+          clear();
+        } else if (button.id === 'backspace') {
+          backspace();
+        } else if (button.id === 'equals') {
+          compute();
+        }
+      });
+    });
+
+    window.addEventListener('keydown', keyboardInput);
+
+    // Initialize display
+    updateDisplay();
+  })();
+</script>
+</body>
+</html>
+
